@@ -1,1 +1,1 @@
-LEVEL_IMAGES = {}
+LEVEL_IMAGES = {0: "example.png"}
