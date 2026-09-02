@@ -2,7 +2,7 @@ from kivy.app import App
 from kivy.uix.scatter import Scatter
 from kivy.uix.floatlayout import FloatLayout
 from kivy.uix.image import Image
-from data.data import Data
+from data.data import Data, FLOORS
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.button import Button
 
@@ -123,10 +123,9 @@ class MapViewer(FloatLayout):
 
 
 class Editor(App):
-
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.level = 0  # Текущий этаж по умолчанию
+        self.level = 2  # Текущий этаж по умолчанию
         self.data = Data()
         self.map_viewer = None  # Ссылка на виджет карты, чтобы обновлять его
 
@@ -157,8 +156,8 @@ class Editor(App):
             spacing=5,  # Расстояние между кнопками
         )
 
-        # 3. Генерируем 5 кнопок (от 0 до 4)
-        for floor_num in range(5):
+        # 3. Генерируем 5 кнопок
+        for floor_num in FLOORS:
             btn = Button(
                 text=str(floor_num),
                 size_hint=(1, 1),
@@ -179,7 +178,7 @@ class Editor(App):
 
         return main_layout
 
-    def change_floor(self, floor_num, pressed_button, button_panel):
+    def change_floor(self, floor_num, _, button_panel):
         """Метод для переключения этажа и обновления картинки."""
         if self.level == floor_num:
             return  # Если нажали на уже активный этаж, ничего не делаем

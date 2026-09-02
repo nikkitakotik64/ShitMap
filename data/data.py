@@ -1,6 +1,8 @@
 import os
 from data.map_levels.levels import LEVEL_IMAGES
 
+FLOORS = (-1, 1, 2, 3, 4)
+
 folder = os.path.dirname(__file__).replace("\\", "/")
 
 
