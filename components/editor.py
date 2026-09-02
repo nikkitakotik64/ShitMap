@@ -80,10 +80,11 @@ class Editor(App):
         # Удаляем старую карту из разметки
         parent = self.map_viewer.parent
         parent.remove_widget(self.map_viewer)
+        pos, zoom = self.map_viewer.get_info()
 
         # Создаем новую карту с новым изображением этажа
         new_image_source = self.data.get_level_image(self.level)
-        self.map_viewer = MapViewer(image_source=new_image_source)
+        self.map_viewer = MapViewer(image_source=new_image_source, pos=pos, zoom=zoom)
 
         # Добавляем новую карту на самый нижний слой (индекс 1, чтобы кнопки остались сверху)
         parent.add_widget(self.map_viewer, index=1)
