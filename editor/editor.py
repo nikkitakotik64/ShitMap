@@ -10,44 +10,48 @@ class MapViewer(FloatLayout):
     def __init__(self, image_source, **kwargs):
         super().__init__(**kwargs)
 
-        # Создаем Scatter. Оставляем только перемещение (do_scale=False отключает зум пальцами)
+        # Создаем Scatter. Оставляем только перемещение
         self.scatter = Scatter(
             do_rotation=False,
             do_scale=False,
-            auto_bring_to_front=False
+            auto_bring_to_front=False,
+            size_hint=(None, None)  # Указываем явно
         )
 
-        # Создаем изображение
-        self.img = Image(source=image_source)
-        self.img.fit_mode = 'cover'
-
-        # Автоматически настраиваем размеры и масштаб при загрузке картинки
-        self.img.bind(texture=self._init_image_size)
+        # Создаем изображение без fit_mode и size_hint
+        self.img = Image(source=image_source, size_hint=(None, None))
 
         self.scatter.add_widget(self.img)
         self.add_widget(self.scatter)
 
-    def _init_image_size(self, instance, texture):
-        if not texture:
+        # Привязываемся к изменению размеров САМОГО виджета MapViewer.
+        # Это гарантирует, что размеры экрана уже известны и актуальны.
+        self.bind(size=self._update_layout)
+
+    def _update_layout(self, instance, value):
+        # Проверяем, загрузилась ли текстура у картинки
+        if not self.img.texture:
+            # Если текстура еще не готова, подпишемся на её появление один раз
+            self.img.bind(texture=self._on_texture_ready)
             return
 
-        # 1. Задаем физический размер для Scatter и Image равным размеру картинки
-        img_w, img_h = texture.size
-        self.scatter.size = (img_w, img_h)
-        self.img.size = (img_w, img_h)
-        self.img.size_hint = (None, None)
+        img_w, img_h = self.img.texture.size
 
-        # 2. Вычисляем масштаб, чтобы картинка заполнила весь экран БЕЗ черных рамок
-        win_w, win_h = Window.size
+        # 1. Задаем физический размер виджетов равным исходному разрешению картинки
+        self.img.size = (img_w, img_h)
+        self.scatter.size = (img_w, img_h)
+
+        # 2. Вычисляем масштаб на основе РЕАЛЬНЫХ размеров родительского контейнера (self.width / self.height)
+        win_w, win_h = self.size
+
         scale_x = win_w / img_w
         scale_y = win_h / img_h
 
-        # max заставит картинку растянуться так, чтобы полностью закрыть экран (эффект Cover)
+        # Эффект Cover: берем максимальный коэффициент, чтобы заполнить всё пространство
         start_scale = max(scale_x, scale_y)
         self.scatter.scale = start_scale
 
-        # 3. Центрируем Scatter на экране с учетом нового масштаба
-        # (чтобы центр картинки совпал с центром экрана)
+        # 3. Центрируем Scatter
         scaled_w = img_w * start_scale
         scaled_h = img_h * start_scale
 
@@ -55,6 +59,12 @@ class MapViewer(FloatLayout):
             (win_w - scaled_w) / 2,
             (win_h - scaled_h) / 2
         )
+
+    def _on_texture_ready(self, instance, texture):
+        # Как только текстура загрузилась, отписываемся от события и обновляем слой
+        if texture:
+            self.img.unbind(texture=self._on_texture_ready)
+            self._update_layout(self, self.size)
 
 
 class Editor(App):
