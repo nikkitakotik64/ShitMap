@@ -4,7 +4,7 @@ from kivy.uix.image import Image
 
 
 class MapViewer(FloatLayout):
-    max_scale = 10.0
+    max_scale = 6.0
     min_scale = 1.0  # Начальный заглушечный масштаб
 
     def __init__(self, image_source, pos=(-1, -1), zoom=-1, **kwargs):

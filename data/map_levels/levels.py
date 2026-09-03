@@ -1,2 +1,2 @@
-LEVEL_IMAGES = {-1: "example.png", 1: 'kal.png', 2: "example.png",
-                3: "example.png", 4: "example.png"}
+LEVEL_IMAGES = {-1: "0.png", 1: '1.png', 2: "2.png",
+                3: "3.png", 4: "4.png"}
